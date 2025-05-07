@@ -8,16 +8,41 @@
 </head>
 <body>
     <div class="container">
+        <div class="header-bar">
+                <img src="icon/iconAbout.png" alt="About" aria-label="About" id="about-button">
+        </div>
+        
+        <!-- About Modal -->
+        <div id="about-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="close-about">&times;</span>
+                <h2>About This App</h2>
+                <p>This is a simple To-Do List web app with music control. Built with HTML, CSS, and JavaScript.</p>
+                <p>Credit: Rico Febrians X RPL</p>
+                <a href="https://github.com/4nec" target="_blank">GitHub</a>
+                <a href="https://www.instagram.com/rico.fbrns/" target="_blank">Instagram</a>
+            </div>
+        </div>        
         <h1>To-Do List</h1>
         <p>Make your own Task List</p>
         <input type="text" id="task-input" placeholder="Enter a new task">
         <button id="add-task-button">Add Task</button>
+        <button id="delete-checked-button">Delete Checked Tasks</button>
         <button id="delete-all-button">Delete All</button>
+        <div class="music-control">
+            <button id="toggle-music" aria-label="Play Music">
+                <svg id="music-icon" width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Play Icon -->
+                    <path id="icon-path" d="M8 5v14l11-7z"/>
+                </svg>
+                <span id="music-label">Play Music</span>
+            </button>
+        </div>
         <ul id="task-list"></ul>
     </div>
     <script src="scripts/app.js"></script>
-    <audio controls autoplay hidden>
+    <audio id="background-music" hidden>
         <source src="music.mp3" type="audio/mpeg">
-    </audio>
+    </audio>    
 </body>
 </html>

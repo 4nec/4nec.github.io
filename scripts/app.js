@@ -1,42 +1,91 @@
 document.addEventListener('DOMContentLoaded', () => {
     const taskInput = document.getElementById('task-input');
     const addTaskButton = document.getElementById('add-task-button');
-    const deleteAllButton = document.getElementById("delete-all-button"); 
-    
+    const deleteAllButton = document.getElementById("delete-all-button");
+    const deleteCheckedButton = document.getElementById('delete-checked-button');  // Tombol delete checked
+
+    const music = document.getElementById('background-music');
+    const toggleButton = document.getElementById('toggle-music');
+    const iconPath = document.getElementById('icon-path');
+    const label = document.getElementById('music-label');
+    const musicIcon = document.getElementById('music-icon');
+
+    const aboutButton = document.getElementById("about-button");
+    const aboutModal = document.getElementById("about-modal");
+    const closeAbout = document.getElementById("close-about");
+
     const taskList = document.getElementById('task-list');
     deleteAllButton.addEventListener("click", deleteAllTasks);
+    deleteCheckedButton.addEventListener("click", deleteCheckedTasks);  // Event listener untuk tombol delete checked
 
     addTaskButton.addEventListener('click', addTask);
     taskList.addEventListener('click', handleTaskClick);
-    // Event listener untuk tombol Add Task
+
     addTaskButton.addEventListener("click", addTask);
 
-    // Event listener untuk mendeteksi tombol Enter
     taskInput.addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
-            addTask(); // Panggil fungsi addTask ketika tombol Enter ditekan
+            addTask();
         }
     });
 
-    // Fungsi untuk menghapus semua task dengan animasi
+    let isPlaying = false;
+
+    toggleButton.addEventListener('click', () => {
+        musicIcon.classList.add("animate");
+    
+        if (!isPlaying) {
+            music.play();
+            iconPath.setAttribute("d", "M6 19h4.5V5H6v14zm7.5-14v14H18V5h-4.5z"); // Pause Icon
+            label.textContent = "Pause Music";
+        } else {
+            music.pause();
+            music.currentTime = 0;
+            iconPath.setAttribute("d", "M8 5v14l11-7z"); // Play Icon
+            label.textContent = "Play Music";
+        }
+        isPlaying = !isPlaying;
+    
+        setTimeout(() => {
+            musicIcon.classList.remove("animate");
+        }, 300);
+    });
+
+    aboutButton.addEventListener("click", () => {
+        aboutModal.style.display = "flex";
+        aboutModal.classList.remove("hide");
+        aboutModal.classList.add("show");
+    });
+    
+    closeAbout.addEventListener("click", () => {
+        aboutModal.classList.remove("show");
+        aboutModal.classList.add("hide");
+        setTimeout(() => {
+            aboutModal.style.display = "none";
+        }, 200);
+    });
+    
+    window.addEventListener("click", (e) => {
+        if (e.target === aboutModal) {
+            aboutModal.classList.remove("show");
+            aboutModal.classList.add("hide");
+            setTimeout(() => {
+                aboutModal.style.display = "none";
+            }, 200);
+        }
+    });
+
     function deleteAllTasks() {
-        // Konfirmasi sebelum menghapus semua task
         const confirmation = confirm("Are you sure you want to delete all tasks?");
-        
         if (confirmation) {
             const tasks = taskList.getElementsByTagName("li");
-            
-            // Looping untuk memberikan animasi fade-out pada setiap task
             Array.from(tasks).forEach((task) => {
-                task.style.animation = "fadeOut 1s forwards"; // Apply fade-out animation
+                task.style.animation = "fadeOut 1s forwards"; 
             });
-
-            // Setelah animasi selesai, hapus semua task
             setTimeout(() => {
-                taskList.innerHTML = ""; // Menghapus semua task dari daftar
-            }, 1000); // Sesuaikan dengan durasi animasi (1 detik)
+                taskList.innerHTML = "";
+            }, 1000); 
         }
-        // Jika Cancel ditekan, tidak ada yang terjadi
     }
 
     function addTask() {
@@ -81,5 +130,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 taskSpan.classList.remove('completed');
             }
         }
+    }
+
+    // Fungsi untuk menghapus task yang dicentang
+    function deleteCheckedTasks() {
+        const checkedTasks = document.querySelectorAll('input[type="checkbox"]:checked');
+        
+        // Hapus setiap task yang dicentang
+        checkedTasks.forEach((checkbox) => {
+            const taskItem = checkbox.closest('li');
+            taskItem.classList.add('removed');
+            taskItem.addEventListener('transitionend', () => {
+                taskList.removeChild(taskItem);
+            });
+        });
     }
 });

@@ -29,6 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+        // Tambahkan fungsi untuk mengecek task yang belum dicentang
+    function checkUncheckedTasks() {
+        const uncheckedTasks = document.querySelectorAll('input[type="checkbox"]:not(:checked)'); // Task yang belum dicentang
+        if (uncheckedTasks.length > 0) {
+            alert("Ada task yang belum dicentang! Silahkan kerjakan terlebih dahulu!");
+        } else {
+            alert("Semua task sudah dicentang! Good job untuk hari ini!");
+        }
+    }
+
+    // Memanggil fungsi checkUncheckedTasks setelah menghapus task yang dicentang
+    deleteCheckedButton.addEventListener("click", () => {
+        deleteCheckedTasks(); // Hapus task yang dicentang
+        checkUncheckedTasks(); // Periksa apakah ada task yang belum dicentang
+    });
+
     let isPlaying = false;
 
     toggleButton.addEventListener('click', () => {
@@ -115,22 +131,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleTaskClick(event) {
-        if (event.target.classList.contains('remove-task-button')) {
-            const taskItem = event.target.parentElement;
+    if (event.target.classList.contains('remove-task-button')) {
+        const taskItem = event.target.parentElement;
+        const checkbox = taskItem.querySelector('input[type="checkbox"]');
+
+        // Cek apakah task belum dicentang
+        if (!checkbox.checked) {
+            // Tampilkan confirm dialog
+            const confirmation = confirm("Task ini belum selesai. Apakah Anda yakin ingin menghapusnya?");
+            if (confirmation) {
+                // Jika Yes, hapus task
+                taskItem.classList.add('removed');
+                taskItem.addEventListener('transitionend', () => {
+                    taskList.removeChild(taskItem);
+                });
+            }
+        } else {
+            // Jika sudah dicentang, langsung hapus task
             taskItem.classList.add('removed');
             taskItem.addEventListener('transitionend', () => {
                 taskList.removeChild(taskItem);
             });
-        } else if (event.target.classList.contains('task-checkbox')) {
-            const taskItem = event.target.parentElement;
-            const taskSpan = taskItem.querySelector('span');
-            if (event.target.checked) {
-                taskSpan.classList.add('completed');
-            } else {
-                taskSpan.classList.remove('completed');
-            }
+        }
+    } else if (event.target.classList.contains('task-checkbox')) {
+        const taskItem = event.target.parentElement;
+        const taskSpan = taskItem.querySelector('span');
+        if (event.target.checked) {
+            taskSpan.classList.add('completed');
+        } else {
+            taskSpan.classList.remove('completed');
         }
     }
+}
 
     // Fungsi untuk menghapus task yang dicentang
     function deleteCheckedTasks() {

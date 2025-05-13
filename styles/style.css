@@ -11,6 +11,26 @@ body {
     height: 100vh;
 }
 
+p {
+    font-family: "Playwrite DK Loopet", cursive;
+    text-align: center;
+    color: #333;
+}
+
+a {
+    font-family: "Playwrite DK Loopet", cursive;
+    text-align: center;
+    margin-right: 10px;
+}
+
+/* Styling untuk function real-time */
+.time {
+    font-family: "Caveat", cursive;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+}
+
 /* Styling untuk container utama */
 .container {
     background-color: #fff;
@@ -143,6 +163,7 @@ body {
 
 /* Styling untuk input task dan button umum */
 h1 {
+    font-family: "Outfit", sans-serif;
     margin-bottom: 20px;
     color: #333;
 }
@@ -157,6 +178,8 @@ input[type="text"] {
 }
 
 button {
+    margin-bottom: 10px;
+    margin-right: 5px;
     padding: 10px 20px;
     border: none;
     background-color: #007bff;
@@ -164,6 +187,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    font-family: "Outfit", sans-serif;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: box-shadow 0.3s ease;
 }

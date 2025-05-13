@@ -164,6 +164,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
+    // Membuat waktu real-time Jakarta
+    function updateJakartaTime() {
+        const jakartaTimeElement = document.getElementById('jakarta-time');
+        const options = {
+            timeZone: 'Asia/Jakarta',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        const formatter = new Intl.DateTimeFormat('id-ID', options);
+        jakartaTimeElement.textContent = formatter.format(new Date());
+    }
+
+    setInterval(updateJakartaTime, 1000);
+    updateJakartaTime(); // jalankan sekali saat dimuat
+
     // Fungsi untuk menghapus task yang dicentang
     function deleteCheckedTasks() {
         const checkedTasks = document.querySelectorAll('input[type="checkbox"]:checked');

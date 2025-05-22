@@ -50,13 +50,13 @@ while(i <= 10){
     }
 }
 
-let i = 1
-while(i <= 10){
-    console.log(i);
+// Menentukan bilangan genap dan ganjil dari 1-10.
+let i = 0
+while(i < 10){
     i++;
     if(i % 2 == 0){
-        alert(i + " adalah bilangan genap");
+        console.log(i + " adalah bilangan genap");
     }else{
-        alert(i + " adalah bilangan ganjil");
+        console.log(i + " adalah bilangan ganjil");
     }
 }

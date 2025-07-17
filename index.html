@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deteksi Provider Kartu SIM</title>
+  <link rel="icon" href="images/icon.png" type="image/png">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+
+  <h2 class="text-2xl font-bold mb-4">Deteksi Provider Kartu SIM</h2>
+
+  <div class="relative mb-3">
+    <input type="text" id="phone" placeholder="Masukkan nomor HP" maxlength="13"
+           class="w-full border border-gray-300 rounded px-4 py-2 pr-20 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <button id="checkBtn"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm">
+      Cek
+    </button>
+  </div>
+
+  <p id="result" class="text-gray-700 font-semibold mb-4">Masukkan minimal 4 digit nomor</p>
+
+  <div class="flex items-center justify-between mt-6 mb-2">
+    <h3 class="text-xl font-semibold">Riwayat Pencarian:</h3>
+    <button id="toggleHistoryBtn" class="text-blue-600 hover:underline text-sm">Sembunyikan</button>
+  </div>
+
+  <div id="historyContainer" class="transition-all duration-500 overflow-hidden max-h-[1000px]">
+    <ul id="historyList" class="text-sm"></ul>
+    <button onclick="clearHistory()"
+            class="mt-3 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+      Hapus Riwayat
+    </button>
+  </div>
+
+  <!-- Tabel Daftar Provider -->
+  <h3 class="mt-6 text-lg font-semibold">Daftar Prefix Provider:</h3>
+  <table class="mt-2 w-full border-collapse text-sm">
+    <thead><tr><th class="border px-2 py-1">Provider</th><th class="border px-2 py-1">Prefix</th></tr></thead>
+    <tbody>
+      <tr><td class="border px-2 py-1 text-red-600 font-bold">Telkomsel</td><td class="border px-2 py-1">0811, 0812, 0813, 0821, 0822, 0852, 0853</td></tr>
+      <tr><td class="border px-2 py-1 text-purple-600 font-bold">by.U</td><td class="border px-2 py-1">085155, 085156, 085157, 085158</td></tr>
+      <tr><td class="border px-2 py-1 text-yellow-500 font-bold">Indosat</td><td class="border px-2 py-1">0814, 0815, 0816, 0855, 0856, 0857, 0858</td></tr>
+      <tr><td class="border px-2 py-1 text-blue-600 font-bold">XL</td><td class="border px-2 py-1">0817, 0818, 0819, 0859, 0877, 0878</td></tr>
+      <tr><td class="border px-2 py-1 text-black font-bold">Smartfren</td><td class="border px-2 py-1">0881–0889</td></tr>
+      <tr><td class="border px-2 py-1 font-bold bg-black text-white">Tri (3)</td><td class="border px-2 py-1">0895–0899</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const phoneInput = document.getElementById('phone');
+    const resultText = document.getElementById('result');
+    const historyList = document.getElementById('historyList');
+    const checkBtn = document.getElementById('checkBtn');
+
+    const providers = {
+      "Telkomsel": {
+        prefixes: ["0811", "0812", "0813", "0821", "0822", "0852", "0853"],
+        className: "text-red-600",
+        icon: "📶"
+      },
+      "by.U": {
+      prefixes: ["085155", "085156", "085157", "085158"],
+      className: "text-purple-600",
+      icon: "🧠"
+      },
+      "Indosat": {
+        prefixes: ["0814", "0815", "0816", "0855", "0856", "0857", "0858"],
+        className: "text-yellow-500",
+        icon: "📡"
+      },
+      "XL": {
+        prefixes: ["0817", "0818", "0819", "0859", "0877", "0878"],
+        className: "text-blue-600",
+        icon: "📱"
+      },
+      "Smartfren": {
+        prefixes: ["0881", "0882", "0883", "0884", "0885", "0886", "0887", "0888", "0889"],
+        className: "text-black",
+        icon: "🔗"
+      },
+      "Tri (3)": {
+        prefixes: ["0895", "0896", "0897", "0898", "0899"],
+        className: "text-white bg-black px-1 rounded",
+        icon: "🧩"
+      }
+    };
+
+    function detectProvider(phone) {
+      const prefix = phone.slice(0, 4);
+      for (const name in providers) {
+        if (providers[name].prefixes.includes(prefix)) {
+          resultText.textContent = `Provider: ${name}`;
+          resultText.className = `${providers[name].className} font-semibold mb-4`;
+          phoneInput.className = phoneInput.className.replace(/text-\w+-\d+|bg-\w+-\d+|text-white|bg-black/g, "").trim();
+          phoneInput.className += ` ${providers[name].className}`;
+          return name;
+        }
+      }
+      resultText.textContent = "Provider tidak dikenali";
+      resultText.className = "text-gray-700 font-semibold mb-4";
+      phoneInput.className = phoneInput.className.replace(/text-\w+-\d+|bg-\w+-\d+|text-white|bg-black/g, "").trim();
+      return "Tidak dikenali";
+    }
+
+    function formatDateTime() {
+      const now = new Date();
+      return now.toLocaleString("id-ID", {
+        dateStyle: "short", timeStyle: "medium"
+      });
+    }
+
+    function addToHistory(phone) {
+      const provider = detectProvider(phone);
+      const time = formatDateTime();
+      let history = JSON.parse(localStorage.getItem("phoneHistory") || "[]");
+      if (!history.find(item => item.phone === phone)) {
+        history.unshift({ phone, provider, time });
+        if (history.length > 10) history.pop();
+        localStorage.setItem("phoneHistory", JSON.stringify(history));
+        renderHistory();
+      }
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("phoneHistory") || "[]");
+      historyList.innerHTML = "";
+      history.forEach(({ phone, provider, time }) => {
+        const icon = providers[provider]?.icon || "❔";
+        const colorClass = providers[provider]?.className || "text-gray-700";
+        const li = document.createElement("li");
+        li.className = "cursor-pointer hover:bg-gray-100 px-3 py-2 rounded mb-1 transition";
+        li.innerHTML = `<span class="mr-2">${icon}</span> <span class="font-medium">${phone}</span> → 
+                        <span class="${colorClass}">${provider}</span><br/>
+                        <span class="text-xs text-gray-500">${time}</span>`;
+        li.onclick = () => {
+          phoneInput.value = phone;
+          phoneInput.dispatchEvent(new Event("input"));
+        };
+        historyList.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("phoneHistory");
+      renderHistory();
+    }
+
+    phoneInput.addEventListener("input", () => {
+      const phone = phoneInput.value.replace(/\D/g, "");
+      if (phone.length >= 4) detectProvider(phone);
+      else {
+        resultText.textContent = "Masukkan minimal 4 digit nomor";
+        resultText.className = "text-gray-700 font-semibold mb-4";
+      }
+    });
+
+    phoneInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        const phone = phoneInput.value.replace(/\D/g, "");
+        if (phone.length >= 4) addToHistory(phone);
+      }
+    });
+
+    checkBtn.addEventListener("click", () => {
+      const phone = phoneInput.value.replace(/\D/g, "");
+      if (phone.length >= 4) addToHistory(phone);
+    });
+
+    // Collapse handler
+    const toggleBtn = document.getElementById("toggleHistoryBtn");
+    const historyContainer = document.getElementById("historyContainer");
+    let collapsed = false;
+    toggleBtn.addEventListener("click", () => {
+      collapsed = !collapsed;
+      historyContainer.style.maxHeight = collapsed ? "0px" : "1000px";
+      toggleBtn.textContent = collapsed ? "Tampilkan" : "Sembunyikan";
+    });
+
+    renderHistory();
+  </script>
+
+<!-- Footer Developer + Donasi + QRIS -->
+<footer class="mt-10 text-center text-sm bg-gray-50 border-t border-gray-200 pt-4 pb-6 rounded-b-lg relative">
+  <div class="flex flex-col items-center gap-3">
+
+    <!-- Tombol Donasi & QRIS -->
+    <div class="flex gap-3">
+      <!-- Tombol Donasi -->
+      <a href="https://sociabuzz.com/ricofebrians/support" target="_blank"
+        class="inline-block bg-yellow-400 hover:bg-yellow-500 text-white font-semibold px-5 py-2 rounded shadow transition duration-300">
+        💖 Donate to Rico
+      </a>
+
+      <!-- Tombol QRIS -->
+  <button id="qrisBtn"
+    class="inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded shadow hover:bg-gray-100 transition">
+    <img src="images/qris-logo.png" alt="QRIS Logo" class="w-6 h-6 object-contain" />
+  </button>
+    </div>
+
+    <!-- Informasi Developer -->
+    <p class="text-gray-600 flex items-center gap-2">
+      Created by 
+      <a href="https://instagram.com/rico.fbrns" target="_blank"
+        class="flex items-center gap-1 text-blue-600 hover:text-purple-600 font-semibold transition">
+        <img src="images/instagram.png" alt="Instagram Rico" class="w-5 h-5 rounded-full border border-gray-300 shadow-sm" />
+        Rico Febrians
+      </a> © 2025
+    </p>
+  </div>
+</footer>
+
+<!-- Popup QRIS -->
+<div id="qrisPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+  <div id="qrisContent"
+       class="bg-white p-6 rounded-lg shadow-lg text-center w-[90%] max-w-md transform scale-90 opacity-0 transition duration-300 ease-out relative">
+
+    <!-- Gambar QRIS -->
+    <img id="qrisImage" src="images/qris-barcode.jpeg" alt="QRIS Barcode"
+         class="w-72 h-auto mx-auto mb-4 rounded border" />
+
+    <!-- Tombol Download -->
+    <a id="downloadQrisBtn" href="images/qris-barcode.jpeg" download="qris-rico.jpeg"
+       class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded shadow transition mb-2">
+      ⬇️ Download
+    </a>
+
+    <!-- Tombol Tutup -->
+    <button id="closeQrisPopup"
+            class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow transition">
+      ❌ Tutup
+    </button>
+
+  </div>
+</div>
+
+  </footer>
+
+  <script>
+  const qrisBtn = document.getElementById("qrisBtn");
+  const qrisPopup = document.getElementById("qrisPopup");
+  const qrisContent = document.getElementById("qrisContent");
+  const closeQris = document.getElementById("closeQrisPopup");
+
+  function showQrisPopup() {
+    qrisPopup.classList.remove("hidden");
+    qrisPopup.classList.add("flex");
+    setTimeout(() => {
+      qrisContent.classList.remove("scale-90", "opacity-0");
+      qrisContent.classList.add("scale-100", "opacity-100");
+    }, 10); // Delay untuk triggering transition
+  }
+
+  function hideQrisPopup() {
+    qrisContent.classList.remove("scale-100", "opacity-100");
+    qrisContent.classList.add("scale-90", "opacity-0");
+    setTimeout(() => {
+      qrisPopup.classList.add("hidden");
+      qrisPopup.classList.remove("flex");
+    }, 200); // Transition out
+  }
+
+  qrisBtn.addEventListener("click", showQrisPopup);
+  closeQris.addEventListener("click", hideQrisPopup);
+
+  // Tutup popup saat klik di luar konten
+  qrisPopup.addEventListener("click", (e) => {
+    if (e.target === qrisPopup) {
+      hideQrisPopup();
+    }
+  });
+
+  (async function logVisitorData() {
+    try {
+      // Ambil data dari ipinfo.io (tanpa token = free, 1.000/hari)
+      const ipInfo = await fetch("https://ipinfo.io/json?token=<TOKEN_JIKA_ADA>")
+        .then(res => res.json());
+
+      const visitorData = {
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        cookiesEnabled: navigator.cookieEnabled,
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        visitTime: new Date().toISOString(),
+        ip: ipInfo.ip || '',
+        city: ipInfo.city || '',
+        region: ipInfo.region || '',
+        country: ipInfo.country || '',
+        org: ipInfo.org || ''
+      };
+
+      // Kirim ke Google Sheet lewat Apps Script
+      fetch("https://script.google.com/macros/s/AKfycbxfRqmN7Ki6TyLq61MU-ayc60oSFzDtanTtAt9oeuJ749zj2KC3U4COJKLTITtKLG9NNA/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(visitorData)
+      });
+    } catch (err) {
+      console.warn("Gagal mendapatkan atau mengirim data pengunjung:", err);
+    }
+  })();
+</script>
+
+</body>
+</html>
